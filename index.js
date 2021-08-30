@@ -16,13 +16,13 @@ const google_client = new google.auth.JWT(
 const getDataSheet = () => {
     // let status = null
     ////////////////////////////////////// ส่วนของ Google Sheet
-    google_client.authorize(function (err, tokens) {
+    google_client.authorize(async(err, tokens) => {
         if (err) {
             console.log(err);
             return;
         } else {
             console.log('Connected!');
-            gsrun(google_client)
+           await gsrun(google_client)
 
         }
     });
