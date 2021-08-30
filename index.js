@@ -1,6 +1,8 @@
 const line = require('@line/bot-sdk');
 const express = require('express');
 const { google } = require('googleapis');
+const puppeteer = require('puppeteer');
+
 const keys = require('./helper/aibobot-5908-26fd97d76e1f.json')
 
 
@@ -16,13 +18,14 @@ const google_client = new google.auth.JWT(
 const getDataSheet = () => {
     // let status = null
     ////////////////////////////////////// ส่วนของ Google Sheet
-    google_client.authorize(async(err, tokens) => {
+    google_client.authorize(async (err, tokens) => {
         if (err) {
             console.log(err);
             return;
         } else {
             console.log('Connected!');
-           await gsrun(google_client)
+            let data = await gsrun(google_client)
+            await inComeOffice(data)
 
         }
     });
@@ -35,15 +38,57 @@ const getDataSheet = () => {
 const gsrun = async (cl) => {
     const gsapi = google.sheets({ version: 'v4', auth: cl });
     const opt = {
-      spreadsheetId: '19T5K7L5oEY6Gz5p2i4jw8GHdaw_0MDgRD3clYGYlRdI',
-      range: 'A2:C'
+        spreadsheetId: '19T5K7L5oEY6Gz5p2i4jw8GHdaw_0MDgRD3clYGYlRdI',
+        range: 'A2:D'
     };
     let data = await gsapi.spreadsheets.values.get(opt);
     let dataArray = data.data.values
-    console.log("dataArray:"+dataArray)
+    console.log("dataArray:" + dataArray)
     return dataArray
-   //  checkCalendar(dataArray)
-  }
+}
+
+const inComeOffice = async (e) => {
+
+    const browser = await puppeteer.launch({
+        'args': [
+            '--no-sandbox',
+            '--disable-setuid-sandbox'
+        ]
+    });
+    const page = await browser.newPage();
+    await page.goto('http://hr.iconframework.com/Webtime/');
+    await page.type('#txtUser', e.Id)
+    await page.type('#txtPWD', e.password)
+    await page.select('#DropDownList1', "1")
+    await page.click('#Button1')
+    await page.goto('http://hr.iconframework.com/Webtime/work/WebAddInOut.aspx')
+
+    const inputType = {
+        "check-in": '#txt_OT_TimeE',
+        "check-out": "#txt_OT_Times"
+    }
+
+    const select = {
+        "check-in": {
+            field: '#Table2 > tbody > tr:nth-child(2) > td:nth-child(3) > #DrpStatus',
+            option: "8"
+        },
+        "check-out": {
+            field: '#Table2 > tbody > tr:nth-child(4) > td:nth-child(3) > #DrpStatus1',
+            option: "9"
+        }
+    }
+
+
+    await page.type(inputType[e.typeCheck], e.time)
+    await page.select(select[e.select].field, select[e.select].option)
+    await page.click("#Table2 > tbody > tr:nth-child(2) > td:nth-child(4) > #Button1")
+    await page.screenshot({ path: 'example6.png' });
+
+    await browser.close();
+
+
+}
 
 // create LINE SDK config from env variables
 const config = {
@@ -72,13 +117,14 @@ app.post('/callback', line.middleware(config), (req, res) => {
 
 // event handler
 function handleEvent(event) {
+    console.log("event : ",event)
     if (event.type !== 'message' || event.message.type !== 'text') {
         // ignore non-text-message event
         return Promise.resolve(null);
     }
 
     const eventReply = {
-        "see_sheet": getDataSheet()
+        "inComeOffice": getDataSheet()
     }
     eventReply[event.message.text]
     // create a echoing text message
