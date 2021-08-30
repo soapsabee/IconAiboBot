@@ -1,7 +1,7 @@
 const line = require('@line/bot-sdk');
 const express = require('express');
 const { google } = require('googleapis');
-const keys = require('./helper/client_secret_999123585038-kf36df10v3878h9prum92h23m3jsb6du.apps.googleusercontent.com.json')
+const keys = require('./helper/aibobot-5908-26fd97d76e1f.json')
 
 
 const client = new google.auth.JWT(
