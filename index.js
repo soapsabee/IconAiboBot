@@ -4,7 +4,7 @@ const { google } = require('googleapis');
 const keys = require('./helper/aibobot-5908-26fd97d76e1f.json')
 
 
-const client = new google.auth.JWT(
+const google_client = new google.auth.JWT(
 
     keys.client_email,
     null,
@@ -16,13 +16,13 @@ const client = new google.auth.JWT(
 const getDataSheet = () => {
     // let status = null
     ////////////////////////////////////// ส่วนของ Google Sheet
-    client.authorize(function (err, tokens) {
+    google_client.authorize(function (err, tokens) {
         if (err) {
             console.log(err);
             return;
         } else {
             console.log('Connected!');
-            gsrun(client)
+            gsrun(google_client)
 
         }
     });
