@@ -331,7 +331,7 @@ const postBackCheckIn = async (data, time, event, userId) => {
     await page.goto('http://hr.iconframework.com/Webtime/work/WebAddInOut.aspx', { waitUntil: 'load', timeout: 0 })
     await page.screenshot({path:"aaa.png"});
     const inputType = {
-        "CheckIn": '#txt_OT_TimeE',
+        "CheckIn": '#Table2 > tbody > tr:nth-child(2) > td:nth-child(2) > #txt_OT_TimeE',
         "CheckOut": '#txt_OT_Times'
     }
 
@@ -348,9 +348,13 @@ const postBackCheckIn = async (data, time, event, userId) => {
 
     try {
         await page.waitForTimeout(8000)
+        
         await page.waitForSelector(inputType[data[0]], { timeout: 120000 });
-
-        await page.type(inputType[data[0]], time)
+        await page.evaluate(() => {
+            const checkin = document.querySelector(inputType[data[0]]);
+            checkin.value = time;
+          });
+        // await page.type(inputType[data[0]], time)
         await page.select(select[data[0]].field, select[data[0]].option)
 
         // await page.click("#Table2 > tbody > tr:nth-child(2) > td:nth-child(4) > #Button1")
