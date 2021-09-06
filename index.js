@@ -1,7 +1,6 @@
 require('dotenv').config()
 
 const line = require('@line/bot-sdk');
-const liff = require('@line/liff')
 const e = require('express');
 const express = require('express');
 const { google } = require('googleapis');
@@ -418,6 +417,16 @@ const initLiff = () => {
     .catch((err) => {
         console.error(err)
     });
+
+    liff.getProfile()
+    .then(profile => {
+      const name = profile.displayName
+      console.log("name: ",name)
+    })
+    .catch((err) => {
+      console.log('error', err);
+    });
+
 }
 
 
