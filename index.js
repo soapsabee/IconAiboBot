@@ -1,7 +1,7 @@
-
 require('dotenv').config()
 
 const line = require('@line/bot-sdk');
+const liff = require('@line/liff')
 const e = require('express');
 const express = require('express');
 const { google } = require('googleapis');
@@ -39,6 +39,10 @@ const getDataSheet = () => {
     //  return status
 
 }
+
+
+
+
 
 
 const gsrun = async (cl) => {
@@ -398,9 +402,28 @@ const postBackCheckIn = async (data, time, event, userId) => {
     // await client.replyMessage(event.replyToken,sendWebViewCheck())
 }
 
+
+const initLiff = () => {
+    liff
+    .init({
+        liffId: "1656349906-6Gwl4xRM"
+    })
+    .then(() => {
+        // start to use LIFF's api
+        if (!liff.isLoggedIn()) {
+            liff.login();
+          }
+        
+    })
+    .catch((err) => {
+        console.error(err)
+    });
+}
+
+
 // event handler
 async function handleEvent(event) {
-    console.log("event : ", event)
+    initLiff()
     const userId = event.source.userId
     const eventType = ["message", "postback", "action", "uri"]
     if (eventType.indexOf(event.type) === -1) {
